@@ -1,0 +1,81 @@
+import 'package:flame/components.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+// Define Rocket class
+class Rocket {
+  final String name;
+  final int speed;
+  final int damage;
+  late SpriteComponent sprite;
+
+  Rocket({required this.name, required this.speed, required this.damage}) {
+    // Load the sprite from the asset
+    sprite = SpriteComponent.fromImage(
+      size: Vector2(100, 50),
+      imagePath: 'assets/${name.toLowerCase()}.png',
+    );
+  }
+}
+
+// Define Player class
+class Player {
+  Rocket? currentRocket;
+
+  void selectRocket(Rocket rocket) {
+    currentRocket = rocket;
+  }
+
+  void switchRocket(Rocket newRocket) {
+    currentRocket = newRocket;
+  }
+}
+
+void main() {
+  runApp(MyGame().widget);
+}
+
+class MyGame extends BaseGame {
+  Player player = Player();
+  List<Rocket> rockets = [
+    Rocket(name: "Rocket A", speed: 10, damage: 20),
+    Rocket(name: "Rocket B", speed: 15, damage: 15),
+    Rocket(name: "Rocket C", speed: 20, damage: 10),
+  ];
+
+  @override
+  Future<void> onLoad() async {
+    for (final rocket in rockets) {
+      await rocket.sprite.load();
+      add(rocket.sprite);
+    }
+    super.onLoad();
+  }
+
+  @override
+  void onTapDown(TapDownInfo details) {
+    super.onTapDown(details);
+    // Handle rocket selection on tap
+    rockets.forEach((rocket) {
+      if (details.eventPosition.game.toOffset().dx >= rocket.sprite.x &&
+          details.eventPosition.game.toOffset().dx <= rocket.sprite.x + 100 &&
+          details.eventPosition.game.toOffset().dy >= rocket.sprite.y &&
+          details.eventPosition.game.toOffset().dy <= rocket.sprite.y + 50) {
+        player.selectRocket(rocket);
+      }
+    });
+  }
+
+  @override
+  void onPanUpdate(DragUpdateInfo details) {
+    super.onPanUpdate(details);
+    // Handle rocket switching on drag
+  }
+
+  @override
+  void onPanEnd(DragEndInfo details) {
+    super.onPanEnd(details);
+    // Handle rocket switching on drag end
+  }
+}
